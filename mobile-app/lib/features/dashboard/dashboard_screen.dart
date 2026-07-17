@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../shared/widgets/state_views.dart';
 import '../alerts/alert_provider.dart';
+import '../carts/cart_registration_screen.dart';
 import '../carts/cart_provider.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -42,6 +43,34 @@ class DashboardScreen extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Card(
+            color: Theme.of(context).colorScheme.primaryContainer,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(Icons.add_shopping_cart, color: Theme.of(context).colorScheme.onPrimaryContainer),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Connect ESP32 smart cart', style: Theme.of(context).textTheme.titleMedium),
+                        const Text('Add the cart ID used in your ESP32 firmware.'),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  FilledButton.icon(
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const CartRegistrationScreen())),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Add'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
           Wrap(
             spacing: 12,
             runSpacing: 12,
@@ -53,7 +82,7 @@ class DashboardScreen extends StatelessWidget {
           ...all.take(5).map((cart) => ListTile(
                 leading: Icon(cart.isOnline ? Icons.check_circle : Icons.cancel, color: cart.isOnline ? Colors.green : Colors.red),
                 title: Text(cart.cartName),
-                subtitle: Text('${cart.cartId} • ${carts.latestTelemetry[cart.cartId]?.motionStatus ?? 'No telemetry'}'),
+                subtitle: Text('${cart.cartId} - ${carts.latestTelemetry[cart.cartId]?.motionStatus ?? 'No telemetry'}'),
                 trailing: Text('${carts.latestTelemetry[cart.cartId]?.batteryPercentage ?? 0}%'),
               )),
           const SizedBox(height: 20),
@@ -62,7 +91,7 @@ class DashboardScreen extends StatelessWidget {
           ...alerts.alerts.take(5).map((alert) => ListTile(
                 leading: const Icon(Icons.warning_amber),
                 title: Text(alert.message),
-                subtitle: Text('${alert.cartId} • ${alert.severity}'),
+                subtitle: Text('${alert.cartId} - ${alert.severity}'),
               )),
         ],
       ),
@@ -79,7 +108,7 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 190,
+      width: MediaQuery.sizeOf(context).width < 520 ? double.infinity : 190,
       child: Card(
         child: Padding(
           padding: const EdgeInsets.all(16),

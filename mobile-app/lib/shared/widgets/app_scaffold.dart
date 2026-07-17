@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../features/auth/auth_provider.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/carts/cart_list_screen.dart';
+import '../../features/carts/fleet_location_screen.dart';
 import '../../features/alerts/alerts_screen.dart';
 import '../../features/analytics/analytics_screen.dart';
 import '../../features/settings/settings_screen.dart';
@@ -20,6 +21,7 @@ class _AppScaffoldState extends State<AppScaffold> {
   final screens = const [
     DashboardScreen(),
     CartListScreen(),
+    FleetLocationScreen(),
     AlertsScreen(),
     AnalyticsScreen(),
     SettingsScreen(),
@@ -31,6 +33,7 @@ class _AppScaffoldState extends State<AppScaffold> {
     final destinations = [
       const NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
       const NavigationDestination(icon: Icon(Icons.shopping_cart_outlined), selectedIcon: Icon(Icons.shopping_cart), label: 'Carts'),
+      const NavigationDestination(icon: Icon(Icons.location_on_outlined), selectedIcon: Icon(Icons.location_on), label: 'Location'),
       const NavigationDestination(icon: Icon(Icons.notifications_outlined), selectedIcon: Icon(Icons.notifications), label: 'Alerts'),
       const NavigationDestination(icon: Icon(Icons.analytics_outlined), selectedIcon: Icon(Icons.analytics), label: 'Analytics'),
       const NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
@@ -41,7 +44,7 @@ class _AppScaffoldState extends State<AppScaffold> {
         final wide = constraints.maxWidth >= 900;
         return Scaffold(
           appBar: AppBar(
-            title: Text('SmartCart Manager${auth.userRole == null ? '' : ' • ${auth.userRole}'}'),
+            title: Text('SmartCart${auth.userRole == null ? '' : ' - ${auth.userRole}'}'),
             actions: [
               IconButton(
                 tooltip: 'Refresh',
