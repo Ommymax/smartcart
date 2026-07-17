@@ -60,6 +60,18 @@ async function createCartForUser(data, assignedUserId) {
   });
 }
 
+async function assignCartToUser(cartId, assignedUserId) {
+  const result = await db.query(
+    `UPDATE carts
+     SET assigned_user_id = $2,
+         updated_at = NOW()
+     WHERE cart_id = $1
+     RETURNING *`,
+    [cartId, assignedUserId]
+  );
+  return result.rows[0];
+}
+
 async function updateCart(cartId, data) {
   const result = await db.query(
     `UPDATE carts
@@ -97,6 +109,7 @@ module.exports = {
   findByCartId,
   createCart,
   createCartForUser,
+  assignCartToUser,
   updateCart,
   deleteCart
 };

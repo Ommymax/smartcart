@@ -5,7 +5,21 @@ const port = Number(process.env.PORT || 5000);
 const esp32Token = process.env.ESP32_API_TOKEN || 'local-demo-esp32-token';
 
 const users = [];
-const carts = [];
+const carts = [
+  {
+    id: crypto.randomUUID(),
+    cart_id: 'SMART_CART_001',
+    cart_name: 'SMART_CART_001',
+    description: 'Demo cart already registered on the server',
+    serial_number: null,
+    model: null,
+    installation_date: null,
+    assigned_user_id: null,
+    status: 'active',
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  }
+];
 const telemetry = [];
 const alerts = [];
 
@@ -163,22 +177,11 @@ const server = http.createServer(async (req, res) => {
       const user = userFromAuth(req);
       if (!user) return send(res, 401, { message: 'Authentication token is required' });
       const body = await readBody(req);
-      if (!body.cartId || !body.cartName) return send(res, 400, { message: 'Cart ID and cart name are required' });
-      if (carts.some((cart) => cart.cart_id === body.cartId)) return send(res, 409, { message: 'Cart ID already exists' });
-      const cart = {
-        id: crypto.randomUUID(),
-        cart_id: body.cartId,
-        cart_name: body.cartName,
-        description: body.description || null,
-        serial_number: body.serialNumber || null,
-        model: body.model || null,
-        installation_date: body.installationDate || null,
-        assigned_user_id: user.id,
-        status: 'active',
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-      carts.push(cart);
+      if (!body.cartId) return send(res, 400, { message: 'Cart ID is required' });
+      const cart = carts.find((item) => item.cart_id === body.cartId);
+      if (!cart) return send(res, 404, { message: 'ID not found' });
+      cart.assigned_user_id = user.id;
+      cart.updated_at = new Date().toISOString();
       return send(res, 201, { data: cart });
     }
 

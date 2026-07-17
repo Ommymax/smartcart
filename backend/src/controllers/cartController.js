@@ -20,7 +20,13 @@ exports.create = asyncHandler(async (req, res) => {
 });
 
 exports.createMine = asyncHandler(async (req, res) => {
-  const cart = await cartModel.createCartForUser(req.body, req.user.id);
+  const cartId = req.body.cartId;
+  if (!cartId) throw new HttpError(400, 'Cart ID is required');
+
+  const existing = await cartModel.findByCartId(cartId);
+  if (!existing) throw new HttpError(404, 'ID not found');
+
+  const cart = await cartModel.assignCartToUser(cartId, req.user.id);
   res.status(201).json({ data: cart });
 });
 

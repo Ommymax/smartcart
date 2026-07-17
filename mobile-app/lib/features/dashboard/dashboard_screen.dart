@@ -55,8 +55,8 @@ class DashboardScreen extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Connect ESP32 smart cart', style: Theme.of(context).textTheme.titleMedium),
-                        const Text('Add the cart ID used in your ESP32 firmware.'),
+                        Text('Connect smart cart', style: Theme.of(context).textTheme.titleMedium),
+                        const Text('Add the cart ID registered on the server.'),
                       ],
                     ),
                   ),

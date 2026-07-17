@@ -141,7 +141,7 @@ class _NoCartView extends StatelessWidget {
                 Text('No smart cart connected', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
                 const SizedBox(height: 8),
                 const Text(
-                  'Enter the cart ID from your ESP32 firmware. When the ESP32 sends telemetry, battery, motion, sensor, and location data will appear here.',
+                  'Enter the Cart ID registered on the server. When the cart sends telemetry, battery, motion, sensor, and location data will appear here.',
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),

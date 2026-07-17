@@ -3,42 +3,35 @@ import 'package:provider/provider.dart';
 import '../auth/auth_provider.dart';
 import 'settings_provider.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
-
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  late final TextEditingController apiUrl;
-
-  @override
-  void initState() {
-    super.initState();
-    apiUrl = TextEditingController(text: context.read<AuthProvider>().api.baseUrl);
-  }
 
   @override
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final auth = context.watch<AuthProvider>();
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        Text('Settings', style: Theme.of(context).textTheme.headlineSmall),
+        const SizedBox(height: 12),
         Card(
           child: ListTile(
-            leading: const Icon(Icons.person),
+            leading: CircleAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimaryContainer),
+            ),
             title: Text(auth.user?.name ?? 'User profile'),
-            subtitle: Text('${auth.user?.email ?? ''} • ${auth.user?.role ?? ''}'),
+            subtitle: Text('${auth.user?.email ?? ''} - ${auth.user?.role ?? ''}'),
           ),
         ),
         const SizedBox(height: 12),
         Card(
           child: SwitchListTile(
-            secondary: const Icon(Icons.notifications),
-            title: const Text('Notification preferences'),
-            subtitle: const Text('Receive active alert notifications'),
+            secondary: const Icon(Icons.notifications_active_outlined),
+            title: const Text('Cart alerts'),
+            subtitle: const Text('Low battery, offline cart, sensor, and obstacle alerts'),
             value: settings.pushAlerts,
             onChanged: settings.setPushAlerts,
           ),
@@ -46,8 +39,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         const SizedBox(height: 12),
         Card(
           child: ListTile(
-            leading: const Icon(Icons.dark_mode),
-            title: const Text('Dark and light mode'),
+            leading: const Icon(Icons.palette_outlined),
+            title: const Text('Appearance'),
+            subtitle: const Text('Choose light, dark, or system mode'),
             trailing: DropdownButton<ThemeMode>(
               value: settings.themeMode,
               items: const [
@@ -63,7 +57,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         Card(
           child: ListTile(
             leading: const Icon(Icons.language),
-            title: const Text('Language selection'),
+            title: const Text('Language'),
+            subtitle: const Text('App display language'),
             trailing: DropdownButton<String>(
               value: settings.language,
               items: const ['English', 'Swahili'].map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
@@ -72,35 +67,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('API configuration', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: 12),
-                TextField(controller: apiUrl, decoration: const InputDecoration(labelText: 'Backend API base URL')),
-                const SizedBox(height: 12),
-                FilledButton.icon(
-                  onPressed: () => auth.saveApiBaseUrl(apiUrl.text.trim()),
-                  icon: const Icon(Icons.save),
-                  label: const Text('Save API URL'),
-                ),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
         const Card(
           child: ListTile(
-            leading: Icon(Icons.password),
-            title: Text('Change password'),
-            subtitle: Text('Use the backend reset-password endpoint in production.'),
+            leading: Icon(Icons.info_outline),
+            title: Text('SmartCart Manager'),
+            subtitle: Text('Server connection is preconfigured for this cart system.'),
           ),
         ),
         const SizedBox(height: 16),
-        OutlinedButton.icon(onPressed: auth.logout, icon: const Icon(Icons.logout), label: const Text('Logout')),
+        OutlinedButton.icon(
+          onPressed: auth.logout,
+          icon: const Icon(Icons.logout),
+          label: const Text('Logout'),
+        ),
       ],
     );
   }

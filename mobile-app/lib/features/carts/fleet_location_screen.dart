@@ -104,7 +104,7 @@ class _MapPlaceholder extends StatelessWidget {
               Text('Map waiting for GPS data', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
               const SizedBox(height: 8),
               const Text(
-                'When ESP32 telemetry includes latitude and longitude, the cart marker will appear here.',
+                'When cart telemetry includes latitude and longitude, the cart marker will appear here.',
                 textAlign: TextAlign.center,
               ),
             ],
