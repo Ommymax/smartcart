@@ -67,36 +67,20 @@ class _LoginScreenState extends State<LoginScreen> {
                   icon: auth.loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login),
                   label: const Text('Login'),
                 ),
-                const SizedBox(height: 20),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'Don’t have an account?',
-                          style: Theme.of(context).textTheme.titleMedium,
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 6),
-                        const Text(
-                          'Create your account first. After login, add the smart cart details from the Carts screen.',
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 12),
-                        OutlinedButton.icon(
-                          onPressed: auth.loading
-                              ? null
-                              : () => Navigator.of(context).push(
-                                    MaterialPageRoute(builder: (_) => const RegisterSmartCartScreen()),
-                                  ),
-                          icon: const Icon(Icons.person_add_alt),
-                          label: const Text('Create account'),
-                        ),
-                      ],
+                const SizedBox(height: 14),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text("Don't have an account?"),
+                    TextButton(
+                      onPressed: auth.loading
+                          ? null
+                          : () => Navigator.of(context).push(
+                                MaterialPageRoute(builder: (_) => const RegisterSmartCartScreen()),
+                              ),
+                      child: const Text('Create account'),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
