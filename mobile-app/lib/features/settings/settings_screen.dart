@@ -23,7 +23,7 @@ class SettingsScreen extends StatelessWidget {
               child: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimaryContainer),
             ),
             title: Text(auth.user?.name ?? 'User profile'),
-            subtitle: Text('${auth.user?.email ?? ''} - ${auth.user?.role ?? ''}'),
+            subtitle: Text(auth.user?.email ?? 'SmartCart Owner'),
           ),
         ),
         const SizedBox(height: 12),

@@ -11,8 +11,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final email = TextEditingController(text: 'admin@smartcart.local');
-  final password = TextEditingController(text: 'Admin@12345');
+  final email = TextEditingController();
+  final password = TextEditingController();
   bool obscure = true;
   String? error;
 
@@ -61,7 +61,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           try {
                             await auth.login(email.text.trim(), password.text);
                           } catch (e) {
-                            setState(() => error = e.toString());
+                            final message = _loginMessage(e);
+                            setState(() => error = message);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text(message)),
+                            );
                           }
                         },
                   icon: auth.loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login),
@@ -88,5 +92,13 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+
+  String _loginMessage(Object error) {
+    final text = error.toString().toLowerCase();
+    if (text.contains('invalid email') || text.contains('invalid') || text.contains('401')) {
+      return 'Incorrect email or password';
+    }
+    return 'Unable to login. Please check your connection and try again.';
   }
 }

@@ -54,7 +54,7 @@ class FleetLocationScreen extends StatelessWidget {
           const _InfoCard(
             icon: Icons.add_shopping_cart,
             title: 'No smart cart added',
-            message: 'Open Carts and add the ESP32 cart ID first.',
+            message: 'Open Carts and add your Cart ID first.',
           )
         else
           ...provider.carts.map((cart) {

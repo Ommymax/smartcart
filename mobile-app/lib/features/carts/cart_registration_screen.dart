@@ -81,8 +81,11 @@ class _CartRegistrationScreenState extends State<CartRegistrationScreen> {
       await context.read<CartProvider>().createMyCart({'cartId': id.text.trim()});
       if (mounted) Navigator.pop(context);
     } catch (e) {
-      final message = e.toString().contains('ID not found') ? 'ID not found' : e.toString();
+      final message = e.toString().contains('ID not found') ? 'Cart ID not found' : 'Unable to add cart. Please try again.';
       setState(() => error = message);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
     } finally {
       if (mounted) setState(() => saving = false);
     }

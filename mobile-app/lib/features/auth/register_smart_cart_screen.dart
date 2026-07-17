@@ -89,11 +89,6 @@ class _RegisterSmartCartScreenState extends State<RegisterSmartCartScreen> {
                   icon: auth.loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.app_registration),
                   label: const Text('Create account'),
                 ),
-                const SizedBox(height: 12),
-                const Text(
-                  'After login, open Carts and add the ESP32 smart cart ID so the device telemetry can appear in the app.',
-                  textAlign: TextAlign.center,
-                ),
               ],
             ),
           ),

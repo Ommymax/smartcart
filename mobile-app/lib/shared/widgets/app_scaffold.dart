@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../features/auth/auth_provider.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/carts/cart_list_screen.dart';
 import '../../features/carts/fleet_location_screen.dart';
 import '../../features/alerts/alerts_screen.dart';
 import '../../features/analytics/analytics_screen.dart';
 import '../../features/settings/settings_screen.dart';
-import 'package:provider/provider.dart';
 
 class AppScaffold extends StatefulWidget {
   const AppScaffold({super.key});
@@ -29,7 +27,6 @@ class _AppScaffoldState extends State<AppScaffold> {
 
   @override
   Widget build(BuildContext context) {
-    final auth = context.watch<AuthProvider>();
     final destinations = [
       const NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
       const NavigationDestination(icon: Icon(Icons.shopping_cart_outlined), selectedIcon: Icon(Icons.shopping_cart), label: 'Carts'),
@@ -44,7 +41,7 @@ class _AppScaffoldState extends State<AppScaffold> {
         final wide = constraints.maxWidth >= 900;
         return Scaffold(
           appBar: AppBar(
-            title: Text('SmartCart${auth.userRole == null ? '' : ' - ${auth.userRole}'}'),
+            title: const Text('SmartCart'),
             actions: [
               IconButton(
                 tooltip: 'Refresh',
