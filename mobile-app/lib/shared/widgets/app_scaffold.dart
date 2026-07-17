@@ -36,47 +36,32 @@ class _AppScaffoldState extends State<AppScaffold> {
       const NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
     ];
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final wide = constraints.maxWidth >= 900;
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('SmartCart'),
-            actions: [
-              IconButton(
-                tooltip: 'Refresh',
-                icon: const Icon(Icons.refresh),
-                onPressed: () {},
-              ),
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('SmartCart'),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            tooltip: 'Refresh',
+            icon: const Icon(Icons.refresh),
+            onPressed: () {},
           ),
-          body: Row(
-            children: [
-              if (wide)
-                NavigationRail(
-                  selectedIndex: index,
-                  onDestinationSelected: (value) => setState(() => index = value),
-                  labelType: NavigationRailLabelType.all,
-                  destinations: destinations
-                      .map((d) => NavigationRailDestination(
-                            icon: d.icon,
-                            selectedIcon: d.selectedIcon,
-                            label: Text(d.label),
-                          ))
-                      .toList(),
-                ),
-              Expanded(child: screens[index]),
-            ],
+        ],
+      ),
+      body: ColoredBox(
+        color: Theme.of(context).colorScheme.surface,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 480),
+            child: screens[index],
           ),
-          bottomNavigationBar: wide
-              ? null
-              : NavigationBar(
-                  selectedIndex: index,
-                  onDestinationSelected: (value) => setState(() => index = value),
-                  destinations: destinations,
-                ),
-        );
-      },
+        ),
+      ),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: index,
+        onDestinationSelected: (value) => setState(() => index = value),
+        destinations: destinations,
+      ),
     );
   }
 }

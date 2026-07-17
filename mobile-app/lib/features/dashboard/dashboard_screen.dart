@@ -71,9 +71,13 @@ class DashboardScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          Wrap(
-            spacing: 12,
-            runSpacing: 12,
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.28,
             children: cards.map((item) => _SummaryCard(title: item.$1, value: item.$2, icon: item.$3)).toList(),
           ),
           const SizedBox(height: 20),
@@ -107,26 +111,18 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: MediaQuery.sizeOf(context).width < 520 ? double.infinity : 190,
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Icon(icon, color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
-                    Text('$value', style: Theme.of(context).textTheme.headlineSmall),
-                  ],
-                ),
-              ),
-            ],
-          ),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            const Spacer(),
+            Text('$value', style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 2),
+            Text(title, maxLines: 2, overflow: TextOverflow.ellipsis),
+          ],
         ),
       ),
     );
