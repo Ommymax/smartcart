@@ -1,0 +1,98 @@
+@baseUrl = http://localhost:5000
+@jwt = paste-user-jwt-here
+@esp32Token = replace-with-device-ingestion-token
+
+### Health
+GET {{baseUrl}}/health
+
+### Login as demo admin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@smartcart.local",
+  "password": "Admin@12345"
+}
+
+### Register a new operator/customer account
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "New SmartCart Owner",
+  "email": "owner@example.com",
+  "password": "Owner@12345"
+}
+
+### Register current user's own smart cart after login
+POST {{baseUrl}}/api/carts/mine
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "cartId": "SMART_CART_004",
+  "cartName": "Owner Cart 4",
+  "description": "Customer-owned autonomous cart",
+  "model": "Prototype A",
+  "serialNumber": "SC-004-2026",
+  "installationDate": "2026-07-17"
+}
+
+### Current user
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{jwt}}
+
+### Register cart
+POST {{baseUrl}}/api/carts
+Authorization: Bearer {{jwt}}
+Content-Type: application/json
+
+{
+  "cartId": "SMART_CART_003",
+  "cartName": "Produce Cart 3",
+  "description": "Autonomous cart for supermarket prototype",
+  "model": "Prototype A",
+  "serialNumber": "SC-003-2026",
+  "installationDate": "2026-07-17",
+  "status": "active"
+}
+
+### Send ESP32 telemetry
+POST {{baseUrl}}/api/cart/telemetry
+Content-Type: application/json
+X-API-Token: {{esp32Token}}
+
+{
+  "cartId": "SMART_CART_001",
+  "powerStatus": "on",
+  "motionStatus": "moving_forward",
+  "stopReason": "none",
+  "batteryVoltage": 11.82,
+  "batteryPercentage": 74,
+  "radioConnected": true,
+  "internetConnected": true,
+  "ultrasonic": {
+    "front": { "active": true, "distanceCm": 86 },
+    "left": { "active": true, "distanceCm": 54 },
+    "right": { "active": true, "distanceCm": 61 }
+  },
+  "rssi": { "left": -58, "right": -61 },
+  "location": { "available": false, "source": "not_installed", "latitude": null, "longitude": null },
+  "uptimeMs": 125000
+}
+
+### List carts
+GET {{baseUrl}}/api/carts
+Authorization: Bearer {{jwt}}
+
+### Latest telemetry
+GET {{baseUrl}}/api/carts/SMART_CART_001/telemetry/latest
+Authorization: Bearer {{jwt}}
+
+### Alerts
+GET {{baseUrl}}/api/alerts
+Authorization: Bearer {{jwt}}
+
+### Analytics summary
+GET {{baseUrl}}/api/analytics/summary
+Authorization: Bearer {{jwt}}

@@ -1,0 +1,35 @@
+{
+  "cartId": "SMART_CART_001",
+  "powerStatus": "on",
+  "motionStatus": "moving_forward",
+  "stopReason": "none",
+  "batteryVoltage": 11.82,
+  "batteryPercentage": 74,
+  "radioConnected": true,
+  "internetConnected": true,
+  "ultrasonic": {
+    "front": {
+      "active": true,
+      "distanceCm": 86
+    },
+    "left": {
+      "active": true,
+      "distanceCm": 54
+    },
+    "right": {
+      "active": true,
+      "distanceCm": 61
+    }
+  },
+  "rssi": {
+    "left": -58,
+    "right": -61
+  },
+  "location": {
+    "available": false,
+    "source": "not_installed",
+    "latitude": null,
+    "longitude": null
+  },
+  "uptimeMs": 125000
+}
