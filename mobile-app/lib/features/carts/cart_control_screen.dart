@@ -19,7 +19,6 @@ class _CartControlScreenState extends State<CartControlScreen> {
   Timer? _repeatTimer;
   double _speed = 90;
   String _lastCommand = 'Ready';
-  bool _sending = false;
 
   @override
   void dispose() {
@@ -28,9 +27,7 @@ class _CartControlScreenState extends State<CartControlScreen> {
   }
 
   Future<void> _send(String command, {int? speed, int durationMs = 700}) async {
-    if (_sending && command != 'stop' && command != 'emergency_stop') return;
     setState(() {
-      _sending = true;
       _lastCommand = command.replaceAll('_', ' ');
     });
 
@@ -45,29 +42,28 @@ class _CartControlScreenState extends State<CartControlScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.toString())));
       }
-    } finally {
-      if (mounted) setState(() => _sending = false);
     }
   }
 
   void _startHold(String command) {
     _repeatTimer?.cancel();
-    _send(command, durationMs: 650);
-    _repeatTimer = Timer.periodic(const Duration(milliseconds: 350), (_) {
-      _send(command, durationMs: 650);
+    _send(command, durationMs: 1400);
+    _repeatTimer = Timer.periodic(const Duration(milliseconds: 800), (_) {
+      _send(command, durationMs: 1400);
     });
   }
 
   void _endHold() {
     _repeatTimer?.cancel();
     _repeatTimer = null;
-    _send('stop', speed: 0, durationMs: 500);
+    _send('stop', speed: 0, durationMs: 1200);
   }
 
   @override
   Widget build(BuildContext context) {
     final telemetry = context.watch<CartProvider>().latestTelemetry[widget.cart.cartId] ?? widget.cart.latestTelemetry;
-    final online = telemetry != null && DateTime.now().difference(telemetry.createdAt).inMinutes < 2;
+    final online = telemetry != null &&
+        DateTime.now().difference(telemetry.createdAt) <= const Duration(seconds: 15);
 
     return Scaffold(
       appBar: AppBar(title: Text('Control ${widget.cart.cartId}')),

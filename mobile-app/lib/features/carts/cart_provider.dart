@@ -8,12 +8,13 @@ import '../../shared/services/api_service.dart';
 class CartProvider extends ChangeNotifier {
   CartProvider(this.api);
   final ApiService api;
-  static const _autoRefreshInterval = Duration(seconds: 10);
-  static const _onlineWindow = Duration(minutes: 2);
+  static const _autoRefreshInterval = Duration(seconds: 2);
+  static const _onlineWindow = Duration(seconds: 15);
 
   List<CartItem> carts = [];
   final Map<String, Telemetry> latestTelemetry = {};
   Timer? _refreshTimer;
+  bool _refreshInFlight = false;
   bool loading = false;
   String? error;
 
@@ -32,6 +33,8 @@ class CartProvider extends ChangeNotifier {
   }
 
   Future<void> loadCarts({bool silent = false}) async {
+    if (_refreshInFlight) return;
+    _refreshInFlight = true;
     if (!silent) {
       loading = true;
       error = null;
@@ -47,6 +50,7 @@ class CartProvider extends ChangeNotifier {
     } catch (e) {
       error = e.toString();
     } finally {
+      _refreshInFlight = false;
       loading = false;
       notifyListeners();
     }

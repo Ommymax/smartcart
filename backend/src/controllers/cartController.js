@@ -70,8 +70,10 @@ exports.createCommand = asyncHandler(async (req, res) => {
   const command = String(req.body.command || '').trim();
   if (!allowedCommands.has(command)) throw new HttpError(400, 'Invalid control command');
 
-  const speed = Math.max(0, Math.min(255, Number.parseInt(req.body.speed ?? 90, 10) || 90));
-  const durationMs = Math.max(100, Math.min(10000, Number.parseInt(req.body.durationMs ?? 700, 10) || 700));
+  const parsedSpeed = Number.parseInt(req.body.speed ?? 90, 10);
+  const parsedDuration = Number.parseInt(req.body.durationMs ?? 700, 10);
+  const speed = Math.max(0, Math.min(255, Number.isNaN(parsedSpeed) ? 90 : parsedSpeed));
+  const durationMs = Math.max(100, Math.min(10000, Number.isNaN(parsedDuration) ? 700 : parsedDuration));
 
   const data = await commandModel.createCommand({
     cartId: cart.cart_id,

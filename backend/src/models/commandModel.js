@@ -2,8 +2,14 @@ const db = require('../config/db');
 
 async function createCommand({ cartId, command, speed, durationMs, userId }) {
   const result = await db.query(
-    `INSERT INTO cart_commands (cart_id, command, speed, duration_ms, source_user_id, expires_at)
-     VALUES ($1, $2, $3, $4, $5, NOW() + ($4::text || ' milliseconds')::interval)
+    `WITH superseded AS (
+       UPDATE cart_commands
+       SET consumed_at = NOW()
+       WHERE cart_id = $1 AND consumed_at IS NULL
+     )
+     INSERT INTO cart_commands (cart_id, command, speed, duration_ms, source_user_id, expires_at)
+     VALUES ($1, $2, $3, $4::integer, $5,
+             NOW() + (($4::integer / 1000.0) * INTERVAL '1 second'))
      RETURNING *`,
     [cartId, command, speed, durationMs, userId || null]
   );
