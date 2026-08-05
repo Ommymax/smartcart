@@ -43,7 +43,7 @@ async function ingestTelemetry(rawPayload, io) {
   const packet = { cartId: payload.cartId, telemetry, alerts };
   io.emit('telemetry:new', packet);
   io.to(`cart:${payload.cartId}`).emit('cart:telemetry', packet);
-  if (alerts.length) io.emit('alerts:new', alerts);
+  if (alerts.length) io.to(`cart:${payload.cartId}`).emit('alerts:new', alerts);
 
   return packet;
 }

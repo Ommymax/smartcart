@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/display_text.dart';
 import '../../shared/models/cart.dart';
+import 'cart_control_screen.dart';
 import 'cart_history_screen.dart';
 import 'cart_location_screen.dart';
 import 'cart_provider.dart';
@@ -15,50 +17,57 @@ class CartDetailScreen extends StatelessWidget {
     final telemetry = context.watch<CartProvider>().latestTelemetry[cart.cartId] ?? cart.latestTelemetry;
     return Scaffold(
       appBar: AppBar(title: Text(cart.cartName)),
-      body: telemetry == null
-          ? const Center(child: Text('No telemetry has been received for this cart.'))
-          : ListView(
+      body: ListView(
               padding: const EdgeInsets.all(16),
               children: [
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   children: [
+                    FilledButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CartControlScreen(cart: cart))), icon: const Icon(Icons.gamepad), label: const Text('Control')),
                     FilledButton.icon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => LiveMonitoringScreen(cart: cart))), icon: const Icon(Icons.monitor_heart), label: const Text('Live')),
                     FilledButton.tonalIcon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CartLocationScreen(cart: cart))), icon: const Icon(Icons.map), label: const Text('Location')),
                     FilledButton.tonalIcon(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => CartHistoryScreen(cart: cart))), icon: const Icon(Icons.show_chart), label: const Text('History')),
                   ],
                 ),
                 const SizedBox(height: 16),
+                if (telemetry == null)
+                  const Card(
+                    child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('No live update yet. Remote control will work when the cart is online.'),
+                    ),
+                  )
+                else ...[
                 _Section(
                   title: 'Cart status',
                   rows: {
                     'Cart ID': cart.cartId,
-                    'Power status': telemetry.powerStatus,
-                    'Motion status': telemetry.motionStatus,
-                    'Stop reason': telemetry.stopReason,
-                    'Battery voltage': '${telemetry.batteryVoltage} V',
-                    'Battery percentage': '${telemetry.batteryPercentage}%',
-                    'Radio connection': telemetry.radioConnected ? 'Connected' : 'Disconnected',
-                    'Internet connection': telemetry.internetConnected ? 'Connected' : 'Disconnected',
-                    'Last telemetry time': telemetry.createdAt.toLocal().toString(),
-                    'Uptime': '${(telemetry.uptimeMs / 1000).round()} seconds',
-                    'Left RSSI': '${telemetry.leftRssi ?? 'Unavailable'}',
-                    'Right RSSI': '${telemetry.rightRssi ?? 'Unavailable'}',
+                    'Power': readableStatus(telemetry.powerStatus),
+                    'Movement': readableStatus(telemetry.motionStatus),
+                    'Current note': readableStatus(telemetry.stopReason),
+                    'Battery level': '${telemetry.batteryPercentage}%',
+                    'Cart link': telemetry.radioConnected ? 'Connected' : 'Not connected',
+                    'Internet': telemetry.internetConnected ? 'Connected' : 'Not connected',
+                    'Last update': telemetry.createdAt.toLocal().toString(),
+                    'Working time': '${(telemetry.uptimeMs / 1000).round()} seconds',
+                    'Left side signal': telemetry.leftRssi == null ? 'Unavailable' : '${telemetry.leftRssi}',
+                    'Right side signal': telemetry.rightRssi == null ? 'Unavailable' : '${telemetry.rightRssi}',
                   },
                 ),
                 const SizedBox(height: 16),
                 _Section(
-                  title: 'Ultrasonic sensors',
+                  title: 'Safety distance',
                   rows: {
-                    'Front sensor': telemetry.frontSensor.active ? 'Active' : 'Inactive',
+                    'Front check': telemetry.frontSensor.active ? 'OK' : 'Not available',
                     'Front distance': '${telemetry.frontSensor.distanceCm ?? 'Unavailable'} cm',
-                    'Left sensor': telemetry.leftSensor.active ? 'Active' : 'Inactive',
+                    'Left check': telemetry.leftSensor.active ? 'OK' : 'Not available',
                     'Left distance': '${telemetry.leftSensor.distanceCm ?? 'Unavailable'} cm',
-                    'Right sensor': telemetry.rightSensor.active ? 'Active' : 'Inactive',
+                    'Right check': telemetry.rightSensor.active ? 'OK' : 'Not available',
                     'Right distance': '${telemetry.rightSensor.distanceCm ?? 'Unavailable'} cm',
                   },
                 ),
+                ],
               ],
             ),
     );

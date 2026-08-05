@@ -32,7 +32,7 @@ class _RegisterSmartCartScreenState extends State<RegisterSmartCartScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
-                Text('Create your account', style: Theme.of(context).textTheme.titleLarge),
+                Text('Create account', style: Theme.of(context).textTheme.titleLarge),
                 const SizedBox(height: 12),
                 TextFormField(controller: name, decoration: const InputDecoration(labelText: 'Full name'), validator: required),
                 const SizedBox(height: 12),

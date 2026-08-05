@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../features/dashboard/dashboard_screen.dart';
 import '../../features/carts/cart_list_screen.dart';
 import '../../features/carts/fleet_location_screen.dart';
 import '../../features/alerts/alerts_screen.dart';
 import '../../features/analytics/analytics_screen.dart';
 import '../../features/settings/settings_screen.dart';
+import '../../features/settings/settings_provider.dart';
+import '../../core/constants/app_constants.dart';
 
 class AppScaffold extends StatefulWidget {
   const AppScaffold({super.key});
@@ -27,18 +30,19 @@ class _AppScaffoldState extends State<AppScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final tr = context.watch<SettingsProvider>().text;
     final destinations = [
-      const NavigationDestination(icon: Icon(Icons.dashboard_outlined), selectedIcon: Icon(Icons.dashboard), label: 'Dashboard'),
-      const NavigationDestination(icon: Icon(Icons.shopping_cart_outlined), selectedIcon: Icon(Icons.shopping_cart), label: 'Carts'),
-      const NavigationDestination(icon: Icon(Icons.location_on_outlined), selectedIcon: Icon(Icons.location_on), label: 'Location'),
-      const NavigationDestination(icon: Icon(Icons.notifications_outlined), selectedIcon: Icon(Icons.notifications), label: 'Alerts'),
-      const NavigationDestination(icon: Icon(Icons.analytics_outlined), selectedIcon: Icon(Icons.analytics), label: 'Analytics'),
-      const NavigationDestination(icon: Icon(Icons.settings_outlined), selectedIcon: Icon(Icons.settings), label: 'Settings'),
+      NavigationDestination(icon: const Icon(Icons.dashboard_outlined), selectedIcon: const Icon(Icons.dashboard), label: tr('Home', 'Nyumbani')),
+      NavigationDestination(icon: const Icon(Icons.shopping_cart_outlined), selectedIcon: const Icon(Icons.shopping_cart), label: tr('Carts', 'Cart')),
+      NavigationDestination(icon: const Icon(Icons.location_on_outlined), selectedIcon: const Icon(Icons.location_on), label: tr('Location', 'Mahali')),
+      NavigationDestination(icon: const Icon(Icons.notifications_outlined), selectedIcon: const Icon(Icons.notifications), label: tr('Alerts', 'Tahadhari')),
+      NavigationDestination(icon: const Icon(Icons.analytics_outlined), selectedIcon: const Icon(Icons.analytics), label: tr('Reports', 'Ripoti')),
+      NavigationDestination(icon: const Icon(Icons.settings_outlined), selectedIcon: const Icon(Icons.settings), label: tr('Settings', 'Mipangilio')),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SmartCart'),
+        title: const Text(AppConstants.appName),
         centerTitle: true,
         actions: [
           IconButton(

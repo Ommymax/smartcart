@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants/app_constants.dart';
+import '../settings/settings_provider.dart';
 import 'auth_provider.dart';
 import 'register_smart_cart_screen.dart';
 
@@ -19,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final settings = context.watch<SettingsProvider>();
+    final tr = settings.text;
     return Scaffold(
       body: Center(
         child: ConstrainedBox(
@@ -29,20 +33,20 @@ class _LoginScreenState extends State<LoginScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(Icons.shopping_cart, size: 64, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.monitor_heart_outlined, size: 64, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 12),
-                Text('SmartCart Manager', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium),
+                Text(AppConstants.appName, textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineMedium),
                 const SizedBox(height: 24),
-                TextField(controller: email, decoration: const InputDecoration(labelText: 'Email', prefixIcon: Icon(Icons.email_outlined))),
+                TextField(controller: email, decoration: InputDecoration(labelText: tr('Email', 'Barua pepe'), prefixIcon: const Icon(Icons.email_outlined))),
                 const SizedBox(height: 12),
                 TextField(
                   controller: password,
                   obscureText: obscure,
                   decoration: InputDecoration(
-                    labelText: 'Password',
+                    labelText: tr('Password', 'Nenosiri'),
                     prefixIcon: const Icon(Icons.lock_outline),
                     suffixIcon: IconButton(
-                      tooltip: obscure ? 'Show password' : 'Hide password',
+                      tooltip: obscure ? tr('Show password', 'Onyesha nenosiri') : tr('Hide password', 'Ficha nenosiri'),
                       icon: Icon(obscure ? Icons.visibility : Icons.visibility_off),
                       onPressed: () => setState(() => obscure = !obscure),
                     ),
@@ -50,7 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Align(
                   alignment: Alignment.centerRight,
-                  child: TextButton(onPressed: () {}, child: const Text('Forgot password?')),
+                  child: TextButton(onPressed: () {}, child: Text(tr('Forgot password?', 'Umesahau nenosiri?'))),
                 ),
                 if (error != null) Text(error!, style: TextStyle(color: Theme.of(context).colorScheme.error)),
                 const SizedBox(height: 8),
@@ -69,20 +73,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           }
                         },
                   icon: auth.loading ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.login),
-                  label: const Text('Login'),
+                  label: Text(auth.loading ? tr('Logging in', 'Inaingia') : tr('Login', 'Ingia')),
                 ),
                 const SizedBox(height: 14),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Don't have an account?"),
+                    Text(tr("Don't have an account?", 'Huna akaunti?')),
                     TextButton(
                       onPressed: auth.loading
                           ? null
                           : () => Navigator.of(context).push(
                                 MaterialPageRoute(builder: (_) => const RegisterSmartCartScreen()),
                               ),
-                      child: const Text('Create account'),
+                      child: Text(tr('Create account', 'Fungua akaunti')),
                     ),
                   ],
                 ),
@@ -99,6 +103,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (text.contains('invalid email') || text.contains('invalid') || text.contains('401')) {
       return 'Incorrect email or password';
     }
-    return 'Unable to login. Please check your connection and try again.';
+    return 'Unable to login. Try again.';
   }
 }

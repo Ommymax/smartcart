@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/display_text.dart';
 import '../../shared/widgets/state_views.dart';
+import 'cart_control_screen.dart';
 import 'cart_detail_screen.dart';
 import 'cart_provider.dart';
 import 'cart_registration_screen.dart';
@@ -26,12 +28,12 @@ class _CartListScreenState extends State<CartListScreen> {
       final t = provider.latestTelemetry[cart.cartId];
       final text = '${cart.cartName} ${cart.cartId}'.toLowerCase().contains(query.toLowerCase());
       final matches = switch (filter) {
-        'Online' => cart.isOnline,
-        'Offline' => !cart.isOnline,
+        'Online' => provider.isOnline(cart),
+        'Offline' => !provider.isOnline(cart),
         'Moving' => (t?.motionStatus ?? '').startsWith('moving'),
         'Stopped' => !(t?.motionStatus ?? '').startsWith('moving'),
         'Low battery' => (t?.batteryPercentage ?? 100) < 20,
-        'Sensor failure' => t != null && (!t.frontSensor.active || !t.leftSensor.active || !t.rightSensor.active),
+        'Safety issue' => t != null && (!t.frontSensor.active || !t.leftSensor.active || !t.rightSensor.active),
         _ => true,
       };
       return text && matches;
@@ -58,7 +60,7 @@ class _CartListScreenState extends State<CartListScreen> {
                   width: double.infinity,
                   initialSelection: filter,
                   onSelected: (value) => setState(() => filter = value ?? 'All'),
-                  dropdownMenuEntries: const ['All', 'Online', 'Offline', 'Moving', 'Stopped', 'Low battery', 'Sensor failure']
+                  dropdownMenuEntries: const ['All', 'Online', 'Offline', 'Moving', 'Stopped', 'Low battery', 'Safety issue']
                       .map((value) => DropdownMenuEntry(value: value, label: value))
                       .toList(),
                 ),
@@ -75,6 +77,8 @@ class _CartListScreenState extends State<CartListScreen> {
                     itemBuilder: (context, index) {
                       final cart = filtered[index];
                       final t = provider.latestTelemetry[cart.cartId];
+                      final online = provider.isOnline(cart);
+                      final sensorsOk = t != null && t.frontSensor.active && t.leftSensor.active && t.rightSensor.active;
                       return Card(
                         child: Padding(
                           padding: const EdgeInsets.all(12),
@@ -84,26 +88,60 @@ class _CartListScreenState extends State<CartListScreen> {
                               ListTile(
                                 contentPadding: EdgeInsets.zero,
                                 leading: CircleAvatar(
-                                  backgroundColor: cart.isOnline ? Colors.green.shade100 : Colors.red.shade100,
-                                  child: Icon(cart.isOnline ? Icons.wifi : Icons.wifi_off, color: cart.isOnline ? Colors.green : Colors.red),
+                                  backgroundColor: online ? Colors.green.shade100 : Colors.red.shade100,
+                                  child: Icon(online ? Icons.wifi : Icons.wifi_off, color: online ? Colors.green : Colors.red),
                                 ),
                                 title: Text(cart.cartName, style: Theme.of(context).textTheme.titleMedium),
-                                subtitle: Text('${cart.cartId} - ${t?.motionStatus ?? 'No telemetry yet'}'),
-                                trailing: const Icon(Icons.chevron_right),
+                                subtitle: Text('${cart.cartId} - ${t == null ? 'No update yet' : readableStatus(t.motionStatus)}'),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      t == null ? '--' : '${t.batteryPercentage}%',
+                                      style: Theme.of(context).textTheme.titleMedium,
+                                    ),
+                                    const Icon(Icons.chevron_right),
+                                  ],
+                                ),
                                 onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CartDetailScreen(cart: cart))),
                               ),
                               const SizedBox(height: 8),
                               Row(
                                 children: [
                                   Expanded(child: _MiniStatus(label: 'Battery', value: t == null ? '--' : '${t.batteryPercentage}%')),
-                                  Expanded(child: _MiniStatus(label: 'Radio', value: t?.radioConnected == true ? 'OK' : 'No data')),
-                                  Expanded(child: _MiniStatus(label: 'GPS', value: t?.locationAvailable == true ? 'Ready' : 'No GPS')),
+                                  Expanded(child: _MiniStatus(label: 'Cart link', value: t?.radioConnected == true ? 'OK' : 'No update')),
+                                  Expanded(child: _MiniStatus(label: 'Safety', value: t == null ? '--' : (sensorsOk ? 'OK' : 'Check'))),
                                 ],
                               ),
                               if (t != null) ...[
                                 const SizedBox(height: 10),
                                 LinearProgressIndicator(value: t.batteryPercentage / 100, minHeight: 8),
                               ],
+                              const SizedBox(height: 10),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: FilledButton.icon(
+                                      onPressed: () => Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (_) => CartControlScreen(cart: cart)),
+                                      ),
+                                      icon: const Icon(Icons.gamepad),
+                                      label: const Text('Remote'),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      onPressed: () => Navigator.of(context).push(
+                                        MaterialPageRoute(builder: (_) => CartDetailScreen(cart: cart)),
+                                      ),
+                                      icon: const Icon(Icons.info_outline),
+                                      label: const Text('Details'),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ],
                           ),
                         ),
@@ -136,16 +174,13 @@ class _NoCartView extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.add_shopping_cart, size: 56, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.add_to_queue, size: 56, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 12),
-                Text('No smart cart connected', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+                Text('No carts added', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
                 const SizedBox(height: 8),
-                const Text(
-                  'Enter the Cart ID registered on the server. When the cart sends telemetry, battery, motion, sensor, and location data will appear here.',
-                  textAlign: TextAlign.center,
-                ),
+                const Text('Add the Cart ID printed on your smart cart.', textAlign: TextAlign.center),
                 const SizedBox(height: 16),
-                FilledButton.icon(onPressed: onAdd, icon: const Icon(Icons.add), label: const Text('Add smart cart')),
+                FilledButton.icon(onPressed: onAdd, icon: const Icon(Icons.add), label: const Text('Add cart')),
               ],
             ),
           ),

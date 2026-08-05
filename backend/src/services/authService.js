@@ -30,11 +30,14 @@ async function login({ email, password }) {
 
 async function registerWithCart({ name, email, password, cart }) {
   if (!cart?.cartId || !cart?.cartName) {
-    throw new HttpError(400, 'Cart ID and cart name are required');
+    throw new HttpError(400, 'Device ID and device name are required');
   }
 
   const result = await register({ name, email, password, role: 'operator' });
-  const savedCart = await cartModel.createCartForUser(cart, result.user.id);
+  const existing = await cartModel.findByCartId(cart.cartId);
+  const savedCart = existing
+    ? await cartModel.assignCartToUser(cart.cartId, result.user.id)
+    : await cartModel.createCartForUser(cart, result.user.id);
   return { ...result, cart: savedCart };
 }
 

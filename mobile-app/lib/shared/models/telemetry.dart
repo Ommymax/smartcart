@@ -46,13 +46,16 @@ class Telemetry {
   final DateTime createdAt;
 
   factory Telemetry.fromJson(Map<String, dynamic> json) {
+    final batteryVoltage = num.tryParse('${json['battery_voltage'] ?? json['batteryVoltage'] ?? 0}') ?? 0;
+    final batteryPercentage = int.tryParse('${json['battery_percentage'] ?? json['batteryPercentage'] ?? 0}') ?? 0;
+
     return Telemetry(
       cartId: json['cart_id'] ?? json['cartId'] ?? '',
       powerStatus: json['power_status'] ?? json['powerStatus'] ?? 'unavailable',
       motionStatus: json['motion_status'] ?? json['motionStatus'] ?? 'unavailable',
       stopReason: json['stop_reason'] ?? json['stopReason'] ?? 'none',
-      batteryVoltage: num.tryParse('${json['battery_voltage'] ?? json['batteryVoltage'] ?? 0}') ?? 0,
-      batteryPercentage: int.tryParse('${json['battery_percentage'] ?? json['batteryPercentage'] ?? 0}') ?? 0,
+      batteryVoltage: batteryVoltage,
+      batteryPercentage: batteryPercentage > 0 ? batteryPercentage.clamp(0, 100) : _batteryPercentageFromVoltage(batteryVoltage),
       radioConnected: json['radio_connected'] ?? json['radioConnected'] ?? false,
       internetConnected: json['internet_connected'] ?? json['internetConnected'] ?? false,
       frontSensor: SensorReading(
@@ -75,5 +78,16 @@ class Telemetry {
       uptimeMs: int.tryParse('${json['uptime_ms'] ?? json['uptimeMs'] ?? 0}') ?? 0,
       createdAt: DateTime.tryParse('${json['created_at'] ?? DateTime.now().toIso8601String()}') ?? DateTime.now(),
     );
+  }
+
+  static int _batteryPercentageFromVoltage(num voltage) {
+    const emptyVoltage = 9.6;
+    const fullVoltage = 12.6;
+
+    if (voltage <= 0) return 0;
+    if (voltage >= fullVoltage) return 100;
+    if (voltage <= emptyVoltage) return 0;
+
+    return (((voltage - emptyVoltage) / (fullVoltage - emptyVoltage)) * 100).round().clamp(0, 100);
   }
 }

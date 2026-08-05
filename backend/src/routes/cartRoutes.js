@@ -1,9 +1,11 @@
 const router = require('express').Router();
 const controller = require('../controllers/cartController');
-const { requireAuth, requireRole } = require('../middleware/auth');
+const { requireAuth, requireRole, requireEsp32Token } = require('../middleware/auth');
 
 router.get('/', requireAuth, controller.list);
 router.post('/mine', requireAuth, controller.createMine);
+router.get('/:id/command/latest', requireEsp32Token, controller.latestCommand);
+router.post('/:id/command', requireAuth, controller.createCommand);
 router.get('/:id', requireAuth, controller.get);
 router.post('/', requireAuth, requireRole('administrator'), controller.create);
 router.put('/:id', requireAuth, requireRole('administrator'), controller.update);

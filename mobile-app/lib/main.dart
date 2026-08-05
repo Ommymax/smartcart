@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'core/config/app_config.dart';
+import 'core/constants/app_constants.dart';
 import 'core/theme/app_theme.dart';
 import 'features/alerts/alert_provider.dart';
 import 'features/auth/auth_provider.dart';
@@ -28,7 +29,7 @@ class SmartCartApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider(api)..bootstrap()),
         ChangeNotifierProvider(create: (_) => CartProvider(api)),
         ChangeNotifierProvider(create: (_) => AlertProvider(api)),
-        ChangeNotifierProvider(create: (_) => SettingsProvider()),
+        ChangeNotifierProvider(create: (_) => SettingsProvider()..bootstrap()),
         Provider(create: (_) => SocketService(socketUrl: AppConfig.defaultSocketUrl)),
       ],
       child: const SmartCartRoot(),
@@ -50,7 +51,7 @@ class _SmartCartRootState extends State<SmartCartRoot> {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     return MaterialApp(
-      title: 'SmartCart Manager',
+      title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
@@ -58,7 +59,13 @@ class _SmartCartRootState extends State<SmartCartRoot> {
       home: Consumer<AuthProvider>(
         builder: (context, auth, _) {
           if (auth.loading) return const SplashScreen();
-          if (!auth.isAuthenticated) return const LoginScreen();
+          if (!auth.isAuthenticated) {
+            socketStarted = false;
+            context.read<CartProvider>().stopAutoRefresh();
+            context.read<SocketService>().disconnect();
+            return const LoginScreen();
+          }
+          context.read<CartProvider>().startAutoRefresh();
           if (!socketStarted && auth.token != null) {
             socketStarted = true;
             final carts = context.read<CartProvider>();
@@ -69,7 +76,12 @@ class _SmartCartRootState extends State<SmartCartRoot> {
                   onAlerts: alerts.prependSocketAlerts,
                 );
             Future.microtask(() {
-              carts.loadCarts();
+              carts.loadCarts().then((_) {
+                final socket = context.read<SocketService>();
+                for (final cart in carts.carts) {
+                  socket.joinCart(cart.cartId);
+                }
+              });
               alerts.loadAlerts();
             });
           }
@@ -85,16 +97,18 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = context.watch<SettingsProvider>();
+    final tr = settings.text;
     return Scaffold(
       body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.shopping_cart, size: 72, color: Theme.of(context).colorScheme.primary),
+            Icon(Icons.monitor_heart_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
             const SizedBox(height: 16),
-            Text('SmartCart Manager', style: Theme.of(context).textTheme.headlineSmall),
+            Text(AppConstants.appName, style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 24),
-            const LoadingView(message: 'Checking backend and saved session'),
+            LoadingView(message: tr('Loading your carts', 'Inapakia cart zako')),
           ],
         ),
       ),

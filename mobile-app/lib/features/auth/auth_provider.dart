@@ -21,7 +21,8 @@ class AuthProvider extends ChangeNotifier {
     loading = true;
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    api.baseUrl = prefs.getString(AppConstants.apiBaseUrlKey) ?? AppConfig.defaultApiBaseUrl;
+    api.baseUrl = AppConfig.defaultApiBaseUrl;
+    await prefs.remove(AppConstants.apiBaseUrlKey);
     token = prefs.getString(AppConstants.tokenKey);
     api.token = token;
     if (token != null) {
@@ -69,6 +70,40 @@ class AuthProvider extends ChangeNotifier {
         'name': name,
         'email': email,
         'password': password,
+      });
+      token = response['token'];
+      user = AppUser.fromJson(response['user']);
+      api.token = token;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(AppConstants.tokenKey, token!);
+    } catch (e) {
+      error = e.toString();
+      rethrow;
+    } finally {
+      loading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> registerAccountWithCart({
+    required String name,
+    required String email,
+    required String password,
+    required String cartId,
+    required String cartName,
+  }) async {
+    loading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final response = await api.post('/api/auth/register-with-cart', {
+        'name': name,
+        'email': email,
+        'password': password,
+        'cart': {
+          'cartId': cartId,
+          'cartName': cartName,
+        },
       });
       token = response['token'];
       user = AppUser.fromJson(response['user']);

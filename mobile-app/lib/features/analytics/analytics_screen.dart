@@ -13,18 +13,18 @@ class AnalyticsScreen extends StatelessWidget {
     final avgUptime = telemetry.isEmpty ? 0 : telemetry.map((t) => t.uptimeMs).reduce((a, b) => a + b) / telemetry.length / 1000;
     final emergencyStops = telemetry.where((t) => t.motionStatus == 'emergency_stop').length;
     final obstacles = telemetry.where((t) => t.stopReason.toLowerCase().contains('obstacle')).length;
-    final sensorFailures = telemetry.where((t) => !t.frontSensor.active || !t.leftSensor.active || !t.rightSensor.active).length;
+    final safetyIssues = telemetry.where((t) => !t.frontSensor.active || !t.leftSensor.active || !t.rightSensor.active).length;
     final moving = telemetry.where((t) => t.motionStatus.startsWith('moving')).length;
     final stopped = telemetry.length - moving;
 
     final rows = [
-      ('Average battery usage', '${avgBattery.toStringAsFixed(1)}%', Icons.battery_std),
-      ('Average uptime', '${avgUptime.toStringAsFixed(0)} seconds', Icons.timer),
+      ('Average battery level', '${avgBattery.toStringAsFixed(1)}%', Icons.battery_std),
+      ('Average working time', '${avgUptime.toStringAsFixed(0)} seconds', Icons.timer),
       ('Emergency stops', '$emergencyStops', Icons.emergency),
-      ('Obstacle detections', '$obstacles', Icons.report_problem),
-      ('Sensor failure frequency', '$sensorFailures', Icons.sensors_off),
-      ('Cart movement duration', '$moving samples', Icons.moving),
-      ('Cart stopped duration', '$stopped samples', Icons.stop_circle),
+      ('Obstacles detected', '$obstacles', Icons.report_problem),
+      ('Safety check issues', '$safetyIssues', Icons.sensors_off),
+      ('Times moving', '$moving', Icons.moving),
+      ('Times stopped', '$stopped', Icons.stop_circle),
       ('Most active carts', carts.carts.take(3).map((c) => c.cartName).join(', '), Icons.star),
     ];
 
@@ -38,7 +38,7 @@ class AnalyticsScreen extends StatelessWidget {
             child: ListTile(
               leading: Icon(row.$3, color: Theme.of(context).colorScheme.primary),
               title: Text(row.$1),
-              subtitle: Text(row.$2.isEmpty ? 'No telemetry yet' : row.$2),
+              subtitle: Text(row.$2.isEmpty ? 'No data' : row.$2),
             ),
           )).toList(),
     );

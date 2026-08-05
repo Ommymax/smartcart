@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import '../../core/utils/display_text.dart';
 import '../../shared/models/cart.dart';
 import '../../shared/models/telemetry.dart';
 import 'package:provider/provider.dart';
@@ -52,14 +53,14 @@ class _CartHistoryScreenState extends State<CartHistoryScreen> {
               ),
               const SizedBox(height: 16),
               if (snapshot.connectionState == ConnectionState.waiting) const LinearProgressIndicator(),
-              if (data.isEmpty) const Padding(padding: EdgeInsets.all(32), child: Center(child: Text('No telemetry history for this period.'))),
+              if (data.isEmpty) const Padding(padding: EdgeInsets.all(32), child: Center(child: Text('No history for this period'))),
               if (data.isNotEmpty) ...[
-                _Chart(title: 'Battery percentage', values: data.map((t) => t.batteryPercentage.toDouble()).toList()),
-                _Chart(title: 'Battery voltage', values: data.map((t) => t.batteryVoltage.toDouble()).toList()),
-                _Chart(title: 'RSSI left/right average', values: data.map((t) => (((t.leftRssi ?? 0) + (t.rightRssi ?? 0)) / 2).toDouble()).toList()),
-                _Chart(title: 'Distance average', values: data.map((t) => (((t.frontSensor.distanceCm ?? 0) + (t.leftSensor.distanceCm ?? 0) + (t.rightSensor.distanceCm ?? 0)) / 3).toDouble()).toList()),
-                Text('Motion timeline', style: Theme.of(context).textTheme.titleLarge),
-                ...data.take(30).map((t) => ListTile(title: Text(t.motionStatus), subtitle: Text('${t.stopReason} • ${t.createdAt.toLocal()}'))),
+                _Chart(title: 'Battery level', values: data.map((t) => t.batteryPercentage.toDouble()).toList()),
+                _Chart(title: 'Battery health', values: data.map((t) => t.batteryVoltage.toDouble()).toList()),
+                _Chart(title: 'Signal strength', values: data.map((t) => (((t.leftRssi ?? 0) + (t.rightRssi ?? 0)) / 2).toDouble()).toList()),
+                _Chart(title: 'Safety distance', values: data.map((t) => (((t.frontSensor.distanceCm ?? 0) + (t.leftSensor.distanceCm ?? 0) + (t.rightSensor.distanceCm ?? 0)) / 3).toDouble()).toList()),
+                Text('Movement history', style: Theme.of(context).textTheme.titleLarge),
+                ...data.take(30).map((t) => ListTile(title: Text(readableStatus(t.motionStatus)), subtitle: Text('${readableStatus(t.stopReason)} - ${t.createdAt.toLocal()}'))),
               ],
             ],
           );

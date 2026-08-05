@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants/app_constants.dart';
 import '../auth/auth_provider.dart';
 import 'settings_provider.dart';
 
@@ -10,11 +11,12 @@ class SettingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final settings = context.watch<SettingsProvider>();
     final auth = context.watch<AuthProvider>();
+    final tr = settings.text;
 
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Text('Settings', style: Theme.of(context).textTheme.headlineSmall),
+        Text(tr('Settings', 'Mipangilio'), style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 12),
         Card(
           child: ListTile(
@@ -22,16 +24,16 @@ class SettingsScreen extends StatelessWidget {
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               child: Icon(Icons.person, color: Theme.of(context).colorScheme.onPrimaryContainer),
             ),
-            title: Text(auth.user?.name ?? 'User profile'),
-            subtitle: Text(auth.user?.email ?? 'SmartCart Owner'),
+            title: Text(auth.user?.name ?? tr('User profile', 'Taarifa za mtumiaji')),
+            subtitle: Text(auth.user?.email ?? AppConstants.appName),
           ),
         ),
         const SizedBox(height: 12),
         Card(
           child: SwitchListTile(
             secondary: const Icon(Icons.notifications_active_outlined),
-            title: const Text('Cart alerts'),
-            subtitle: const Text('Low battery, offline cart, sensor, and obstacle alerts'),
+            title: Text(tr('Cart alerts', 'Tahadhari za cart')),
+            subtitle: Text(tr('Battery, connection, safety, and obstacle alerts', 'Chaji, connection, usalama na vizuizi')),
             value: settings.pushAlerts,
             onChanged: settings.setPushAlerts,
           ),
@@ -40,14 +42,14 @@ class SettingsScreen extends StatelessWidget {
         Card(
           child: ListTile(
             leading: const Icon(Icons.palette_outlined),
-            title: const Text('Appearance'),
-            subtitle: const Text('Choose light, dark, or system mode'),
+            title: Text(tr('Theme', 'Muonekano')),
+            subtitle: Text(tr('Choose app appearance', 'Chagua muonekano wa app')),
             trailing: DropdownButton<ThemeMode>(
               value: settings.themeMode,
-              items: const [
-                DropdownMenuItem(value: ThemeMode.system, child: Text('System')),
-                DropdownMenuItem(value: ThemeMode.light, child: Text('Light')),
-                DropdownMenuItem(value: ThemeMode.dark, child: Text('Dark')),
+              items: [
+                DropdownMenuItem(value: ThemeMode.system, child: Text(tr('System', 'Mfumo'))),
+                DropdownMenuItem(value: ThemeMode.light, child: Text(tr('Light', 'Mwanga'))),
+                DropdownMenuItem(value: ThemeMode.dark, child: Text(tr('Dark', 'Giza'))),
               ],
               onChanged: (value) => settings.setThemeMode(value ?? ThemeMode.system),
             ),
@@ -57,8 +59,8 @@ class SettingsScreen extends StatelessWidget {
         Card(
           child: ListTile(
             leading: const Icon(Icons.language),
-            title: const Text('Language'),
-            subtitle: const Text('App display language'),
+            title: Text(tr('Language', 'Lugha')),
+            subtitle: Text(tr('Choose app language', 'Chagua lugha ya app')),
             trailing: DropdownButton<String>(
               value: settings.language,
               items: const ['English', 'Swahili'].map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
@@ -67,18 +69,18 @@ class SettingsScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        const Card(
+        Card(
           child: ListTile(
-            leading: Icon(Icons.info_outline),
-            title: Text('SmartCart Manager'),
-            subtitle: Text('Server connection is preconfigured for this cart system.'),
+            leading: const Icon(Icons.info_outline),
+            title: const Text(AppConstants.appName),
+            subtitle: Text(tr('Connected', 'Imeunganishwa')),
           ),
         ),
         const SizedBox(height: 16),
         OutlinedButton.icon(
           onPressed: auth.logout,
           icon: const Icon(Icons.logout),
-          label: const Text('Logout'),
+          label: Text(tr('Logout', 'Toka')),
         ),
       ],
     );

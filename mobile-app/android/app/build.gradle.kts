@@ -8,6 +8,11 @@ android {
     namespace = "com.example.smartcart_management"
     compileSdk = flutter.compileSdkVersion
 
+    val googleMapsApiKey =
+        (project.findProperty("GOOGLE_MAPS_API_KEY") as String?)
+            ?: System.getenv("GOOGLE_MAPS_API_KEY")
+            ?: ""
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -22,6 +27,7 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
     }
 
     buildTypes {

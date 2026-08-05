@@ -59,6 +59,28 @@ CREATE TABLE IF NOT EXISTS alerts (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS alert_dismissals (
+  cart_id VARCHAR(80) NOT NULL REFERENCES carts(cart_id) ON DELETE CASCADE,
+  alert_type VARCHAR(80) NOT NULL,
+  dismissed_until TIMESTAMPTZ NOT NULL,
+  PRIMARY KEY (cart_id, alert_type)
+);
+
+CREATE TABLE IF NOT EXISTS cart_commands (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  cart_id VARCHAR(80) NOT NULL REFERENCES carts(cart_id) ON DELETE CASCADE,
+  command VARCHAR(40) NOT NULL CHECK (command IN ('auto', 'forward', 'left', 'right', 'stop', 'emergency_stop')),
+  speed INTEGER NOT NULL DEFAULT 90 CHECK (speed >= 0 AND speed <= 255),
+  duration_ms INTEGER NOT NULL DEFAULT 700 CHECK (duration_ms >= 100 AND duration_ms <= 10000),
+  source_user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  consumed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL DEFAULT (NOW() + INTERVAL '2 seconds')
+);
+
 CREATE INDEX IF NOT EXISTS idx_telemetry_cart_created ON telemetry(cart_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_alerts_cart_created ON alerts(cart_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_alerts_read ON alerts(is_read);
+CREATE INDEX IF NOT EXISTS idx_alert_dismissals_until ON alert_dismissals(dismissed_until);
+CREATE INDEX IF NOT EXISTS idx_cart_commands_cart_created ON cart_commands(cart_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_cart_commands_expires ON cart_commands(expires_at);

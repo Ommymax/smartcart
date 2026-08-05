@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../core/utils/display_text.dart';
 import '../../shared/models/cart.dart';
 import 'cart_provider.dart';
 
@@ -11,9 +12,9 @@ class LiveMonitoringScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final telemetry = context.watch<CartProvider>().latestTelemetry[cart.cartId] ?? cart.latestTelemetry;
     return Scaffold(
-      appBar: AppBar(title: Text('Live ${cart.cartId}')),
+      appBar: AppBar(title: Text('Live update ${cart.cartId}')),
       body: telemetry == null
-          ? const Center(child: Text('Waiting for the first telemetry packet.'))
+          ? const Center(child: Text('No live update yet'))
           : GridView.count(
               padding: const EdgeInsets.all(16),
               crossAxisCount: MediaQuery.sizeOf(context).width > 700 ? 3 : 1,
@@ -21,13 +22,13 @@ class LiveMonitoringScreen extends StatelessWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 3.4,
               children: [
-                _LiveTile('Motion', telemetry.motionStatus, Icons.moving),
+                _LiveTile('Movement', readableStatus(telemetry.motionStatus), Icons.moving),
                 _LiveTile('Battery', '${telemetry.batteryPercentage}%', Icons.battery_charging_full),
-                _LiveTile('Front sensor', '${telemetry.frontSensor.distanceCm ?? '--'} cm', Icons.sensors),
-                _LiveTile('Left RSSI', '${telemetry.leftRssi ?? '--'} dBm', Icons.network_check),
-                _LiveTile('Right RSSI', '${telemetry.rightRssi ?? '--'} dBm', Icons.network_check),
-                _LiveTile('Connection', telemetry.internetConnected ? 'Online' : 'Disconnected', Icons.wifi),
-                _LiveTile('Last packet', telemetry.createdAt.toLocal().toString(), Icons.schedule),
+                _LiveTile('Front distance', '${telemetry.frontSensor.distanceCm ?? '--'} cm', Icons.straighten),
+                _LiveTile('Left signal', '${telemetry.leftRssi ?? '--'}', Icons.network_check),
+                _LiveTile('Right signal', '${telemetry.rightRssi ?? '--'}', Icons.network_check),
+                _LiveTile('Internet', telemetry.internetConnected ? 'Online' : 'Not connected', Icons.wifi),
+                _LiveTile('Last update', telemetry.createdAt.toLocal().toString(), Icons.schedule),
               ],
             ),
     );

@@ -15,13 +15,13 @@ class CartLocationScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Location ${cart.cartId}')),
       body: !hasLocation
-          ? const Center(child: Padding(padding: EdgeInsets.all(24), child: Text('Location unavailable. GPS module or mobile location integration is required.', textAlign: TextAlign.center)))
+          ? const Center(child: Padding(padding: EdgeInsets.all(24), child: Text('Location is not available yet.', textAlign: TextAlign.center)))
           : Column(
               children: [
                 ListTile(
                   leading: const Icon(Icons.place),
                   title: Text('${telemetry!.latitude}, ${telemetry.longitude}'),
-                  subtitle: Text('Last location update: ${telemetry.createdAt.toLocal()}'),
+                  subtitle: Text('Last update: ${telemetry.createdAt.toLocal()}'),
                 ),
                 Expanded(
                   child: GoogleMap(

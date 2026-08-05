@@ -22,7 +22,7 @@ function buildTelemetryAlerts(payload) {
   }
 
   if (!payload.radioConnected) {
-    alerts.push({ cartId, alertType: 'radio_disconnected', message: `${cartId} radio link is disconnected.`, severity: 'critical' });
+    alerts.push({ cartId, alertType: 'radio_disconnected', message: `${cartId} device link is disconnected.`, severity: 'critical' });
   }
   if (!payload.internetConnected) {
     alerts.push({ cartId, alertType: 'internet_disconnected', message: `${cartId} internet connection is disconnected.`, severity: 'critical' });
@@ -62,7 +62,7 @@ async function createOfflineAlert(cart) {
   return alertModel.createAlert({
     cartId: cart.cart_id,
     alertType: 'cart_offline',
-    message: `${cart.cart_name || cart.cart_id} has not sent telemetry for more than 30 seconds.`,
+    message: `${cart.cart_name || cart.cart_id} has not sent an update for more than 30 seconds.`,
     severity: 'critical'
   });
 }

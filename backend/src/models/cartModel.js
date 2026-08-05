@@ -33,6 +33,21 @@ async function findByCartId(cartId) {
   return result.rows[0];
 }
 
+async function findAccessibleCart(cartId, user) {
+  const params = [cartId];
+  let scope = '';
+  if (user.role === 'operator') {
+    params.push(user.id);
+    scope = 'AND assigned_user_id = $2';
+  }
+
+  const result = await db.query(
+    `SELECT * FROM carts WHERE cart_id = $1 ${scope}`,
+    params
+  );
+  return result.rows[0];
+}
+
 async function createCart(data) {
   const result = await db.query(
     `INSERT INTO carts (cart_id, cart_name, description, serial_number, model, installation_date, assigned_user_id, status)
@@ -107,6 +122,7 @@ async function deleteCart(cartId) {
 module.exports = {
   listCarts,
   findByCartId,
+  findAccessibleCart,
   createCart,
   createCartForUser,
   assignCartToUser,

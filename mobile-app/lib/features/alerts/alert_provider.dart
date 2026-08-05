@@ -30,6 +30,41 @@ class AlertProvider extends ChangeNotifier {
     await loadAlerts();
   }
 
+  Future<void> deleteAlert(String id) async {
+    final previous = [...alerts];
+    alerts = alerts.where((alert) => alert.id != id).toList();
+    notifyListeners();
+    try {
+      await api.delete('/api/alerts/$id');
+    } catch (e) {
+      alerts = previous;
+      error = e.toString();
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  Future<void> clearAlerts() async {
+    final previous = [...alerts];
+    final ids = previous.map((alert) => alert.id).where((id) => id.isNotEmpty).toList();
+    alerts = [];
+    notifyListeners();
+    try {
+      await api.delete('/api/alerts');
+    } catch (e) {
+      try {
+        for (final id in ids) {
+          await api.delete('/api/alerts/$id');
+        }
+      } catch (fallbackError) {
+        alerts = previous;
+        error = fallbackError.toString();
+        notifyListeners();
+        rethrow;
+      }
+    }
+  }
+
   void prependSocketAlerts(List<dynamic> items) {
     alerts = [
       ...items.map((item) => AlertItem.fromJson(Map<String, dynamic>.from(item))),

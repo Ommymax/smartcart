@@ -22,7 +22,7 @@ class FleetLocationScreen extends StatelessWidget {
       children: [
         Text('Cart location', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 6),
-        const Text('Shows current smart cart position when GPS or mobile location data is available.'),
+        const Text('Current cart position'),
         const SizedBox(height: 16),
         SizedBox(
           height: 320,
@@ -52,14 +52,14 @@ class FleetLocationScreen extends StatelessWidget {
         const SizedBox(height: 16),
         if (provider.carts.isEmpty)
           const _InfoCard(
-            icon: Icons.add_shopping_cart,
-            title: 'No smart cart added',
-            message: 'Open Carts and add your Cart ID first.',
+            icon: Icons.add_to_queue,
+            title: 'No carts added',
+            message: 'Add a cart from the cart list.',
           )
         else
           ...provider.carts.map((cart) {
             final t = provider.latestTelemetry[cart.cartId] ?? cart.latestTelemetry;
-            final online = cart.isOnline;
+            final online = provider.isOnline(cart);
             final hasLocation = t?.locationAvailable == true && t?.latitude != null && t?.longitude != null;
             return Padding(
               padding: const EdgeInsets.only(bottom: 12),
@@ -72,8 +72,8 @@ class FleetLocationScreen extends StatelessWidget {
                   title: Text(cart.cartName),
                   subtitle: Text(
                     hasLocation
-                        ? '${t!.latitude}, ${t.longitude} - ${online ? 'online' : 'offline'}'
-                        : 'Location unavailable. GPS module or mobile location integration is required.',
+                        ? '${t!.latitude}, ${t.longitude} - Last update: ${t.createdAt.toLocal()}'
+                        : 'Location unavailable',
                   ),
                   trailing: Icon(hasLocation ? Icons.place : Icons.location_off),
                   onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => CartDetailScreen(cart: cart))),
@@ -101,12 +101,9 @@ class _MapPlaceholder extends StatelessWidget {
             children: [
               Icon(Icons.map_outlined, size: 64, color: Theme.of(context).colorScheme.primary),
               const SizedBox(height: 12),
-              Text('Map waiting for GPS data', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
+              Text('No location data', style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
               const SizedBox(height: 8),
-              const Text(
-                'When cart telemetry includes latitude and longitude, the cart marker will appear here.',
-                textAlign: TextAlign.center,
-              ),
+              const Text('GPS coordinates have not been received.', textAlign: TextAlign.center),
             ],
           ),
         ),

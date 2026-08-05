@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import '../../shared/models/cart.dart';
 import '../../shared/models/telemetry.dart';
@@ -6,16 +8,35 @@ import '../../shared/services/api_service.dart';
 class CartProvider extends ChangeNotifier {
   CartProvider(this.api);
   final ApiService api;
+  static const _autoRefreshInterval = Duration(seconds: 10);
+  static const _onlineWindow = Duration(minutes: 2);
 
   List<CartItem> carts = [];
   final Map<String, Telemetry> latestTelemetry = {};
+  Timer? _refreshTimer;
   bool loading = false;
   String? error;
 
-  Future<void> loadCarts() async {
-    loading = true;
-    error = null;
-    notifyListeners();
+  bool isOnline(CartItem cart) {
+    final last = (latestTelemetry[cart.cartId] ?? cart.latestTelemetry)?.createdAt;
+    return last != null && DateTime.now().difference(last) <= _onlineWindow;
+  }
+
+  void startAutoRefresh() {
+    _refreshTimer ??= Timer.periodic(_autoRefreshInterval, (_) => loadCarts(silent: true));
+  }
+
+  void stopAutoRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+  }
+
+  Future<void> loadCarts({bool silent = false}) async {
+    if (!silent) {
+      loading = true;
+      error = null;
+      notifyListeners();
+    }
     try {
       final response = await api.get('/api/carts');
       carts = (response['data'] as List).map((item) => CartItem.fromJson(Map<String, dynamic>.from(item))).toList();
@@ -41,6 +62,14 @@ class CartProvider extends ChangeNotifier {
     await loadCarts();
   }
 
+  Future<void> sendCommand(String cartId, {required String command, int speed = 90, int durationMs = 700}) async {
+    await api.post('/api/carts/$cartId/command', {
+      'command': command,
+      'speed': speed,
+      'durationMs': durationMs,
+    });
+  }
+
   Future<List<Telemetry>> history(String cartId, {String range = '7d'}) async {
     final now = DateTime.now();
     final from = switch (range) {
@@ -57,5 +86,11 @@ class CartProvider extends ChangeNotifier {
     final telemetry = Telemetry.fromJson(telemetryJson);
     latestTelemetry[telemetry.cartId] = telemetry;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    stopAutoRefresh();
+    super.dispose();
   }
 }
