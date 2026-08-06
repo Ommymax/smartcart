@@ -30,19 +30,7 @@ async function latestCommand(cartId) {
   return result.rows[0] || null;
 }
 
-async function markConsumed(id) {
-  const result = await db.query(
-    `UPDATE cart_commands
-     SET consumed_at = NOW()
-     WHERE id = $1
-     RETURNING *`,
-    [id]
-  );
-  return result.rows[0] || null;
-}
-
 module.exports = {
   createCommand,
-  latestCommand,
-  markConsumed
+  latestCommand
 };

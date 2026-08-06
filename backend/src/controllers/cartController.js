@@ -104,7 +104,6 @@ exports.latestCommand = asyncHandler(async (req, res) => {
     });
   }
 
-  await commandModel.markConsumed(command.id);
   res.json({
     data: {
       id: command.id,
